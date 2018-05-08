@@ -4,9 +4,12 @@ const express = require('express');
 const router = express.Router();
 
 const mongoose = require('mongoose');
+const passport = require('passport');
+// router.use('/', passport.authenticate('jwt', { session: false, failWithError: true }));
 
 const Folder = require('../models/folder');
 const Note = require('../models/note');
+router.use('/', passport.authenticate('jwt', { session: false, failWithError: true }));
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
