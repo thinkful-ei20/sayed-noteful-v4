@@ -93,9 +93,9 @@ router.put('/:id', (req, res, next) => {
     return next(err);
   }
 
-  const updateTag = { name, };
+  const updateTag = { name, userId };
 
-  Tag.findByIdAndUpdate({_id: id, userId}, updateTag, { new: true })
+  Tag.findByIdAndUpdate(id, updateTag, { new: true })
     .then(result => {
       if (result) {
         res.json(result);
@@ -116,15 +116,13 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
-  const tagRemovePromise = Tag.findByIdAndRemove({ _id: id, userId });
-  // const tagRemovePromise = Tag.remove({ _id: id }); // NOTE **underscore** _id
-
-  const noteUpdatePromise = Note.updateMany(
-    { 'tags': id, },
-    { '$pull': { 'tags': id } }
-  );
-
-  Promise.all([tagRemovePromise, noteUpdatePromise])
+  Tag.findOneAndRemove({ _id: id, userId })
+    .then(() => {
+      return Note.updateMany(
+        { tags: id, userId },
+        { $pull: { tags: id } }
+      );
+    })
     .then(() => {
       res.status(204).end();
     })

@@ -5,11 +5,10 @@ const router = express.Router();
 
 const mongoose = require('mongoose');
 const passport = require('passport');
-// router.use('/', passport.authenticate('jwt', { session: false, failWithError: true }));
+router.use('/', passport.authenticate('jwt', { session: false, failWithError: true }));
 
 const Folder = require('../models/folder');
 const Note = require('../models/note');
-router.use('/', passport.authenticate('jwt', { session: false, failWithError: true }));
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
@@ -96,7 +95,7 @@ router.put('/:id', (req, res, next) => {
 
   const updateFolder = { name, userId };
 
-  Folder.findByIdAndUpdate({_id: id, userId}, updateFolder, { new: true })
+  Folder.findByIdAndUpdate( id, updateFolder, { new: true })
     .then(result => {
       if (result) {
         res.json(result);
@@ -118,17 +117,13 @@ router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
 
-  // ON DELETE SET NULL equivalent
-  const folderRemovePromise = Folder.findByIdAndRemove({ _id: id, userId });  // NOTE **underscore** _id
-  // ON DELETE CASCADE equivalent
-  // const noteRemovePromise = Note.deleteMany({ folderId: id });
-
-  const noteRemovePromise = Note.updateMany(
-    { folderId: id },
-    { '$unset': { 'folderId': '' } }
-  );
-
-  Promise.all([folderRemovePromise, noteRemovePromise])
+  Folder.findOneAndRemove({ _id: id, userId })
+    .then(() => {
+      return Note.updateMany(
+        { folderId: id, userId },
+        { $unset: { folderId: '' } }
+      );
+    })
     .then(() => {
       res.status(204).end();
     })
