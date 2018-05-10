@@ -95,7 +95,7 @@ router.put('/:id', (req, res, next) => {
 
   const updateFolder = { name, userId };
 
-  Folder.findByIdAndUpdate( id, updateFolder, { new: true })
+  Folder.findOneAndUpdate({ _id: id, userId }, updateFolder, { new: true })
     .then(result => {
       if (result) {
         res.json(result);

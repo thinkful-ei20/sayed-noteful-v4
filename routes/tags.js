@@ -95,7 +95,7 @@ router.put('/:id', (req, res, next) => {
 
   const updateTag = { name, userId };
 
-  Tag.findByIdAndUpdate(id, updateTag, { new: true })
+  Tag.findOneAndUpdate({ _id: id, userId }, updateTag, { new: true })
     .then(result => {
       if (result) {
         res.json(result);
