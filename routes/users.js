@@ -9,7 +9,7 @@ const User = require('../models/user');
 
 router.get('/', (req, res, next) => {
   User.find()
-    // .sort('name')
+    .sort('name')
     .then(results => {
       res.json(results);
     })

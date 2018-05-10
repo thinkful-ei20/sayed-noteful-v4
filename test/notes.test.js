@@ -16,6 +16,7 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe('Noteful API - Notes', function () {
+  this.timeout(5000);
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI)
       .then(() => mongoose.connection.db.dropDatabase());
