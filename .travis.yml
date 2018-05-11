@@ -1,3 +1,10 @@
 language: node_js
 node_js: node
 services: mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: aYkEBdsf6lc4rKvbDGaO+/EYapUtLNKZ/VJXIsnHwAU5lA7beJOyFqA5vxLajv/wb8FD1hZmh/Gts9MAmDhnecCB1cy/cwnkaYvTrp6f1/9a/wl/LwZnUU2hsILmz/iyqOVSyxhkWsSfIOu4NwX4LaXjA512376G7QezCfviVLtK9WN7wKqVqogfY7w42EqOti9OcxtuNqHvCGMWsFcZ4VXakLGr65Sp/Zk9S2EIOAtyBa3A4ffXlgMG8kxqtiAgIWf8DnofVaxgEz+aqxpGgAVz54X9+jL4b/HmF/twUPo9MNDvHSuM88zbdpirneU/qgqR5eu4n7affqZAsbVtKzHR+Q9Gakpmw8/CxtfqcH+EzkP0kGLx7dBfhw36nUYGER5MZ1FVR2mHnkSU7/aETBoWL3qxDoTeLRXyYVAcIkHtmtC6m78IpNXEVbuvDFLOgBvvDFbxfIpDuuc6fJeAYAIIaqlYKFlWU1Xk5aR7ATXrOxsOw/1E2nmDDz4bqaMC9hUwyolf3VyF4V8VIVfU7NtzAavS+LJJ2vNF2jYNVfPNnqIbJyWUCRCNCLegcWga9qZQ6to/uTUVtX3OxYcndZq8OPXoc41v/pSlxcgRuau/qFDREBIbPIqRtKWfwEw1MK0Th5aYrtgqUGHgM289xDGNBtFMdTI/3o2+g9TUJLY=
+  app: sayed-noteful-v4
+  on:
+    repo: thinkful-ei20/sayed-noteful-v4

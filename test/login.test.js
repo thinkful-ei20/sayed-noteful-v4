@@ -13,14 +13,14 @@ const User = require('../models/user');
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe.only('Noteful API - Login', function () {
+describe('Noteful API - Login', function () {
 
   let token;
   const _id = '333333333333333333333333';
   const fullname = 'Example User';
   const username = 'exampleUser';
   const password = 'examplePass';
-
+  this.timeout(5000);
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI)
       .then(() => mongoose.connection.db.dropDatabase());

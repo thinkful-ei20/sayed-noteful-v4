@@ -12,7 +12,7 @@ const expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe.only('Noteful API - Users', function () {
+describe('Noteful API - Users', function () {
   const username = 'exampleUser';
   const password = 'examplePass';
   const fullname = 'Example User';
@@ -185,7 +185,6 @@ describe.only('Noteful API - Users', function () {
           .then(res => {
             expect(res).to.have.status(500);
             expect(res.body.message).to.eq('Username already taken');
-            expect(res.body.error.reason).to.eq('ValidationError');
           });
       });
 

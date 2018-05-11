@@ -1,5 +1,5 @@
 'use strict';
-
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 const { MONGODB_URI } = require('../config');
@@ -14,7 +14,10 @@ const seedTags = require('../db/seed/tags');
 const seedUsers = require('../db/seed/users');
 
 mongoose.connect(MONGODB_URI)
-  .then(() => mongoose.connection.db.dropDatabase())
+  .then(() => {
+    mongoose.connection.db.dropDatabase()
+    console.log(MONGODB_URI)
+  })
   .then(() => {
     return Promise.all(seedUsers.map(user => User.hashPassword(user.password)))
   })

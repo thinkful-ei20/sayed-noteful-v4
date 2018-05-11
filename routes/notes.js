@@ -1,11 +1,8 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
-
 const mongoose = require('mongoose');
 const passport = require('passport');
-router.use('/', passport.authenticate('jwt', { session: false, failWithError: true }));
 
 const Note = require('../models/note');
 const Folder = require('../models/folder');
@@ -49,6 +46,11 @@ function validateTagIds(tags, userId) {
     });
 }
 
+const router = express.Router();
+
+// Protect endpoints using JWT Strategy
+router.use('/', passport.authenticate('jwt', { session: false, failWithError: true }));
+
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
   const { searchTerm, folderId, tagId } = req.query;
@@ -69,7 +71,7 @@ router.get('/', (req, res, next) => {
     filter.tags = tagId;
   }
 
-  Note.find({ filter })
+  Note.find(filter)
     .populate('tags')
     .sort({ 'updatedAt': 'desc' })
     .then(results => {
@@ -85,6 +87,7 @@ router.get('/:id', (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
 
+  /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
     const err = new Error('The `id` is not valid');
     err.status = 400;
@@ -109,7 +112,7 @@ router.get('/:id', (req, res, next) => {
 router.post('/', (req, res, next) => {
   const { title, content, folderId, tags } = req.body;
   const userId = req.user.id;
-  const newNote = { title, content, userId }
+  const newNote = { title, content, userId, folderId, tags };
 
   /***** Never trust users - validate input *****/
   if (!title) {
@@ -118,15 +121,11 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
 
-  const valFolderIdProm = validateFolderId(userId, newNote.folderId);
-  const valTagIdsProm = validateTagIds(userId, newNote.tags);
-
-  Promise.all([valFolderIdProm, valTagIdsProm])
-    .then(() => {
-      newNote.folderId = folderId;
-      newNote.tags = tags;
-      return Note.create(newNote);
-    })
+  Promise.all([
+    validateFolderId(folderId, userId),
+    validateTagIds(tags, userId)
+  ])
+    .then(() => Note.create(newNote))
     .then(result => {
       res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
     })
@@ -148,9 +147,15 @@ router.put('/:id', (req, res, next) => {
   const { id } = req.params;
   const { title, content, folderId, tags } = req.body;
   const userId = req.user.id;
-  const updateNote = { title, content, tags, userId };
+  const updateNote = { title, content, userId, folderId, tags };
 
   /***** Never trust users - validate input *****/
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
+
   if (!title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
@@ -161,12 +166,12 @@ router.put('/:id', (req, res, next) => {
     updateNote.folderId = folderId;
   }
 
-  const valFolderIdProm = validateFolderId(userId, folderId);
-  const valTagIdsProm = validateTagIds(userId, tags);
-
-  Promise.all([valFolderIdProm, valTagIdsProm])
+  Promise.all([
+    validateFolderId(folderId, userId),
+    validateTagIds(tags, userId)
+  ])
     .then(() => {
-      return Note.findOneAndUpdate({ _id: id, userId }, updateNote, { new: true })
+      return Note.findByIdAndUpdate(id, updateNote, { new: true })
         .populate('tags');
     })
     .then(result => {
@@ -193,6 +198,13 @@ router.put('/:id', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
+
+  /***** Never trust users - validate input *****/
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
 
   Note.findOneAndRemove({ _id: id, userId })
     .then(() => {
