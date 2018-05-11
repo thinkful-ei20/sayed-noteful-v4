@@ -169,25 +169,27 @@ describe.only('Noteful API - Users', function () {
       });
 
       it('Should reject users with duplicate username', function () {
-        const testUser0 = {
-          username: `${username}`,
-          password: `${password}`,
-          fullname: ` ${fullname} `
-        };
-        const testUser1 = {
-          username: `${username}`,
-          password: `${password}1`,
-          fullname: `${fullname}1`
-        };
-        return chai.request(app).post('/api/users').send([testUser0, testUser1])
+        return User.create({
+          username,
+          password,
+          fullname
+        })
+          .then(() =>
+            // Try to create a second user with the same username
+            chai.request(app).post('/api/users').send({
+              username,
+              password,
+              fullname
+            })
+          )
           .then(res => {
-            expect(res).to.have.status(422);
+            expect(res).to.have.status(500);
             expect(res.body.message).to.eq('Username already taken');
             expect(res.body.error.reason).to.eq('ValidationError');
           });
       });
 
-      it('Should trim fullname');
+      // it('Should trim fullname');
     });
 
     describe('GET', function () {
